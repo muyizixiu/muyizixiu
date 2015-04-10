@@ -28,3 +28,5 @@ class Tree:
             if os.path.isdir(path+'/'+i):
                 self.tree(path+'/'+i,j)
             j-=1
+test=Tree()
+test.tree("/home/hero")
