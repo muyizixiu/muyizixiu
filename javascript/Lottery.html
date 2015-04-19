@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="Zh_CN">
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+		<style type="text/css">
+			 {
+				 #mainBox{
+					 width:530px;
+					 height:425px;
+					 background-color: #ccc;
+					 margin:auto;
+					 position:relative;
+				 }
+				 .itemBox{
+					 width:100px;
+					 height:100px;
+					 background-color: #fff;
+					 position:absolute;
+					 font-size:50px;
+					 line-height:100px;
+					 color:#000;
+					 text-align:center;
+				 }
+				 .i1{
+					 top:5px;
+					 left:5px;
+				 }
+				 .i2{
+					 top:5px;
+					 left:110px;
+				 }
+				 .i3{
+					 top:5px;
+					 left:215px;
+				 }
+				 .i4{
+					 top:5px;
+					 left:320px;
+				 }
+				 .i5{
+					 top:5px;
+					 left:425px;
+				 }
+				 .i6{
+					 top:110px;
+					 left:425px;
+				 }
+				 .i7{
+					 top:215px;
+					 left:425px;
+				 }
+				 .i8{
+					 top:320px;
+					 left:425px;
+				 }
+				 .i9{
+					 top:320px;
+					 left:320px;
+				 }
+				 .i10{
+					 top:320px;
+					 left:215px;
+				 }
+				 .i11{
+					 top:320px;
+					 left:110px;
+				 }
+				 .i12{
+					 top:320px;
+					 left:5px;
+				 }
+				 .i13{
+					 top:215px;
+					 left:5px;
+				 }
+				 .i14{
+					 top:110px;
+					 left:5px;
+				 }
+				 .buttonBox{
+					 display:block;
+					 width:310px;
+					 height:205px;
+					 text-decoration: none;
+					 position:absolute;
+					 top:110px;
+					 left:110px;
+					 background-color: #f00;
+					 font-size:50px;
+					 line-height:205px;
+					 text-align: center;
+				 }
+				 #checked{
+					 box-sizing:border-box;
+					 border:4px solid #f00;
+					 background:#f99;
+				 }
+			 </style>
+		 </head>
+		 <body>
+			 <div id="mainBox">
+				 <div class="itemBox i1">1</div>
+				 <div class="itemBox i2">2</div>
+				 <div class="itemBox i3">3</div>
+				 <div class="itemBox i4 ">4</div>
+				 <div class="itemBox i5">5</div>
+				 <div class="itemBox i6">6</div>
+				 <div class="itemBox i7">7</div>
+				 <div class="itemBox i8">8</div>
+				 <div class="itemBox i9">9</div>
+				 <div class="itemBox i10">10</div>
+				 <div class="itemBox i11">11</div>
+				 <div class="itemBox i12">12</div>
+				 <div class="itemBox i13">13</div>
+				 <div class="itemBox i14">14</div>
+				 <a href="javascript:Lottery.init();" class="buttonBox">start</a>
+			 </div>
+			 <script type="text/javascript">
+				 var Lottery={
+					 luckyNum:null,
+					 boxTotalNum:13,//start with zero;
+					 lotteryBoxes:document.getElementById("mainBox").getElementsByTagName('div'),
+					 numPointer:0,
+					 timerHandler:null,
+					 speedIndex:400,
+					 flag:false,
+					 init:function(){
+						 if(this.flag){
+							 return;
+						 };
+						 this.flag=true;
+						 this.lotteryBoxes[this.numPointer%14].id="";
+						 this.numPointer=0;
+						 this.lotteryBoxes[this.numPointer].id="checked";
+						 this.luckyNum=Math.floor(Math.random()*14);
+						 this.run();
+					 },
+					 run:function(){
+						 Lottery.timerHandler=window.setInterval(this.runBody,Lottery.speedIndex);
+					 },
+					 runBody:function(){
+						 Lottery.numPointer++;
+						 Lottery.lotteryBoxes[(Lottery.numPointer-1)%14].id="";
+						 Lottery.lotteryBoxes[Lottery.numPointer%14].id="checked";
+						 if(Lottery.numPointer==4){
+							 window.clearInterval(Lottery.timerHandler);
+							 Lottery.speedIndex/=4;
+							 Lottery.run();
+						 };
+						 if(Lottery.numPointer==(Lottery.luckyNum+37)){
+							 window.clearInterval(Lottery.timerHandler);
+							 Lottery.speedIndex*=4;
+							 Lottery.run();
+						 }
+						 if(Lottery.numPointer==(Lottery.luckyNum+42)){
+							 window.clearInterval(Lottery.timerHandler);
+							 Lottery.flag=false;
+						 }
+					 }
+				 }
+			 </script>
+		 </body>
+	 </html>
+			
