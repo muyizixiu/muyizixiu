@@ -1,0 +1,431 @@
+<!doctype html>
+<html>
+	<head>
+		<meta lang="zh-cn" charset="utf-8"/>
+		<title>planeFighter</title>
+		<style type="text/css">
+			#playArea{
+				height:800px;
+				width:800px;
+				margin:0 auto;
+				overflow: hidden;
+				background:url("./sky.png") top center;
+				background-position:10 10;
+				position:relative;
+			}
+			body{
+				background: #aaa;
+			}
+			#fighter{
+				width:100px;
+				height:60px;
+				position:absolute;
+				bottom:0px;
+			}
+			.bullet{
+				width:10px;
+				height:20px;
+				background: url("./bullet.png") no-repeat #555;
+				position:absolute;
+			}
+			.enemy{
+				display:block;
+				margin:0px;
+				padding:0px;
+				width:60px;
+				height:40px;
+				background: url("./enemy.png") no-repeat;
+				position:absolute;
+			}
+			.cloud{
+				display:block;
+				position:absolute;
+				z-index: 10;
+			}
+			#scoreCloumn{
+				width:30px;
+				height:200px;
+				background:blue;
+				position: absolute;
+				top:500px;
+				left:0px;
+			}
+			#score{
+				width:100%;
+				height:10px;
+				background:red;
+				position:absolute;
+				bottom:0px;
+			}
+		</style>
+	</head>
+	<body>
+		<div style="width:1000px;margin:0 auto;position:relative;">
+		<div id="playArea">
+			<img src="./fighter.png" alt="fighter" id="fighter">
+		</div>
+		<div id="scoreCloumn">
+			<div id="score"></div>
+		</div>
+		</div>
+		<audio loop="loop" >
+			<source src="./fire.mp3" type="audio/mp3"/>
+		</audio>
+		<audio >
+			<source src="./hit.mp3" type="audio/mp3"/>
+		</audio>
+		<script type="text/javascript">
+		function Audio(){
+			this.id=document.getElementsByTagName('audio');
+			this.playLoop=function(num){
+				this.id[num].play();
+			}
+			this.stop=function(num){
+				this.id[num].pause();
+				this.id[num].currentTime=0;
+			}
+		}
+		var aud=new Audio();
+		</script>
+	</body>
+	<script type="text/javascript">
+		var playArea=document.getElementById('playArea');
+		var fighter=document.getElementById("fighter");
+		//console.log(fighter)
+		function Key(){
+			//this指针传递。
+			var self=this;
+			//各个动作对接处。
+			this.keyDown={"37":"fighter.run(true);","39":"fighter.run(false);","38":"fighter.fly(true);","40":"fighter.fly(false);","32":"fighter.fire()"};
+			this.keyUp={"37":"fighter.stop(true);","39":"fighter.stop(false);","38":"fighter.stopV(true)","40":"fighter.stopV(false);","32":"fighter.holdFire();"};
+			// 监听键盘。
+			this.listen=function(){
+				document.onkeyup=function(ev){
+					var e=window.event||ev;
+					var keyCode=e.keyCode||e.which;
+					// console.log(keyCode);
+					eval(self.keyUp[keyCode]);
+				}
+				document.onkeydown=function(ev){
+					var e=window.event||ev;
+					var keyCode=e.keyCode||e.which;
+					// console.log(e);
+					// console.log(keyCode);
+					//console.log(keyCode)
+					eval(self.keyDown[keyCode]);
+				}
+			}
+			this.listen();
+		}
+		//实例化键盘。
+		var key=new Key();
+		//移动类;
+		function Move(){
+			this.speedT=300;
+			this.horizonFlagR=false;
+			this.horizonFlagL=false;
+			this.horizonTimerL=null;
+			this.horizonTimerR=null;
+			this.id=null;
+			this.isHit=function(){
+			}
+			this.run=function(L_or_R){
+				var self=this;
+				if(L_or_R){
+					if(this.horizonFlagL){
+						return;
+					}
+					this.horizonFlagL=true;
+					this.horizonTimerL=window.setInterval(function(){self.horizonMove(true)},self.speedT);
+				}
+				if(!L_or_R){
+					if(this.horizonFlagR){
+						return false;
+					}else if(!this.horizonFlagR){
+					this.horizonFlagR=true;
+					this.horizonTimerR=window.setInterval(function(){self.horizonMove(false)},self.speedT);
+					}
+				}
+			};
+			this.stop=function(L_or_R){
+				if (L_or_R) {
+					window.clearInterval(this.horizonTimerL);
+					this.horizonFlagL=false;
+					return true;
+				};
+				window.clearInterval(this.horizonTimerR);
+				this.horizonFlagR=false;
+			}
+			this.speedL=5;
+			this.horizonMove=function(L_or_R){
+				if(L_or_R){
+					var speed=0-this.speedL;
+				}else{
+					var speed=this.speedL;
+				}
+				this.id.style.left=this.id.offsetLeft+speed+"px";
+				this.isHit();
+				this.isBoundaryH();
+			}
+			this.upFlag=false;
+			this.downFlag=false;
+			this.speedH=5;
+			this.verticalTimerU=null;
+			this.verticalTimerD=null;
+			this.fly=function(up_or_down){
+				var self=this;
+				if(up_or_down){
+					if(this.upFlag){
+						return;
+					}
+					this.upFlag=true;
+					this.verticalTimerU=window.setInterval(function(){self.verticalFly(true);},self.speedT);
+				}else{
+					if(this.downFlag){
+						return;
+					}
+					this.downFlag=true;
+					this.verticalTimerD=window.setInterval(function(){self.verticalFly(false)},self.speedT);
+				}
+			}
+			this.verticalFly=function(up_or_down){
+				if (up_or_down) {
+					var speed=0-this.speedH;
+				}else{
+					var speed=this.speedH;
+				}
+				this.id.style.top=this.id.offsetTop+speed+"px";
+				this.isHit();
+				this.isBoundaryV();
+			}
+			this.stopV=function(up_or_down){
+				if(up_or_down){
+					window.clearInterval(this.verticalTimerU);
+					this.upFlag=false;
+				}else{
+					window.clearInterval(this.verticalTimerD);
+					this.downFlag=false;
+				}
+			}
+			this.isBoundaryV=function(){
+				if(this.id.offsetTop<0){
+					this.destroy(this,1);
+				}
+				if(this.id.offsetTop>(playArea.offsetHeight-this.id.offsetHeight)){
+					this.destroy(this,2);
+				}
+			}
+			this.leftBoundary=0;
+			this.rightBoundary=playArea.offsetWidth;
+			this.isBoundaryH=function(){
+				if(this.id.offsetLeft<this.leftBoundary){
+					this.destroy(this,3);
+				}
+				if(this.id.offsetLeft>(this.rightBoundary-this.id.offsetWidth)){
+					this.destroy(this,4);
+				}
+			}
+			this.destroy=function(self){
+				playArea.removeChild(self.id);
+			}
+		}
+		//战斗机构造函数。
+		function Fighter(fighter){
+			//移动函数;
+			this.score=null;
+			this.speedT=20;
+			this.speedL=3;
+			this.fireSpeed=400;
+			this.id=fighter;
+			this.fireFlag=false;
+			this.fireTimer=null;
+			this.fire=function(){
+				var self=this;
+				if(this.fireFlag){
+					return;
+				}
+				this.fireFlag=true;
+				aud.playLoop(0);
+				this.fireTimer=window.setInterval(function(){
+					self.weapon();},self.fireSpeed);
+			}
+			this.weaponLevel=0;
+			this.weapon=function(){
+				if(this.weaponLevel==0){
+					new Bullet(this,this.id.offsetTop,this.id.offsetLeft);
+				}
+				if(this.weaponLevel==1){
+					new Bullet(this,this.id.offsetTop,this.id.offsetLeft-20);
+					new Bullet(this,this.id.offsetTop,this.id.offsetLeft+20);
+				}
+			}
+			this.holdFire=function(){
+				window.clearInterval(this.fireTimer);
+				this.fireFlag=false;
+				aud.stop(0);
+			}
+			this.destroy=function(self,num){
+				switch (num){
+					case 1:
+						self.id.style.top="0px";
+					break;
+					case 2:
+						self.id.style.top=playArea.offsetHeight-self.id.offsetHeight+"px";
+					break;
+					case 3:
+						self.id.style.left="0px";
+					break;
+					case 4:
+						self.id.style.left=playArea.offsetWidth-self.id.offsetWidth+"px";
+					break;
+				}
+			}
+		}
+		function F(){};
+		F.prototype=new Move();
+		Fighter.prototype=new F();
+		Fighter.prototype.constructor=Fighter;
+		//实例化一个主机。
+		var fighter=new Fighter(fighter);
+		// console.log(fighter.id)
+		//子弹
+		function Bullet(fighter,top,left){
+			this.id=null;
+			this.speedH=10;
+			this.speedT=30;
+			this.isHit=function(){
+				var enemies=document.getElementsByTagName('p');
+				for (var i = enemies.length - 1; i >= 0; i--) {
+					if((this.id.offsetLeft+this.id.offsetWidth)<enemies[i].offsetLeft||this.id.offsetLeft>(enemies[i].offsetLeft+enemies[i].offsetWidth)||this.id.offsetTop>(enemies[i].offsetTop+enemies[i].offsetHeight)||(this.id.offsetTop+this.id.offsetHeight)<enemies[i].offsetTop){
+					}else{
+						Enemy.id=enemies[i];
+						this.destroy(this);
+						this.destroy(Enemy);
+						aud.stop(1);
+						aud.playLoop(1);
+						fighter.score.getScore(fighter);
+					}
+				};
+
+			}
+			this.init=function(fighter,top,left){
+				this.id=document.createElement("div");
+				this.id.className="bullet";
+				window.playArea.appendChild(this.id);
+				this.id.style.top=top-this.id.offsetHeight+"px";
+				this.id.style.left=left+(fighter.id.offsetWidth-this.id.offsetWidth)/2+"px";}
+				this.init(fighter,top,left);
+				this.fly(true);
+		}
+		function B(){}
+		B.prototype=new Move();
+		Bullet.prototype=new B();
+		Bullet.prototype.constructor=Bullet;
+		//敌机
+		function Enemy(){
+			this.id=null;
+			this.speedT=30;
+			this.speedH=3;
+			this.enegy=1;
+			this.init=function(){
+				this.id=document.createElement("p");
+				this.id.className="enemy";
+				this.id.style.left=Math.random()*(playArea.offsetWidth-100)+"px";
+				playArea.appendChild(this.id);
+			}
+			this.init();
+			this.fly(false);
+		}
+		function E(){}
+		E.prototype=new Move();
+		Enemy.prototype=new E();
+		Enemy.prototype.constructor=Enemy;
+		//随机发射平台
+		function Platform(){
+			this.item=new Array();//发射类
+			this.itemlaunchSpeedT=3000;//怎么实现一个平台里
+			this.launchTimer=null;
+			this.randomNum=0.7;
+			this.launch=function(item){
+				var self=this;
+				this.launchTimer=window.setInterval(function(){
+					if(Math.random()>self.randomNum){}else{
+					new item();}},this.launchSpeedT);
+			}
+		}
+		//敌机发射平台
+		function EnemyTower(){
+			this.item=Enemy.prototype.constructor;
+			// this.launch=function(){
+			// 	window.setInterval(function(){
+			// 		if(Math.random()>0.7){}else{
+			// 		new Enemy(Math.random()*(playArea.offsetWidth-100));}},this.launchSpeedT);
+			//}
+		}
+		function P(){};
+		P.prototype=new Platform();
+		EnemyTower.prototype=new P();
+		EnemyTower.prototype.constructor=EnemyTower;
+		var enemyTower=new EnemyTower();
+		enemyTower.launch(this.item);
+		function Cloud(){
+			this.src="./cloud.png";
+			this.id=null;
+			this.position=null;
+			this.speedT=300;
+			this.init=function(){
+				this.id=document.createElement("img");
+				this.id.src=this.src;
+				this.id.className="cloud";
+				playArea.appendChild(this.id);
+				this.position=Math.random()*(playArea.offsetHeight-this.id.offsetHeight);
+				this.id.style.top=this.position+"px";
+				this.id.style.left=0-this.id.offsetWidth+"px"
+				this.leftBoundary=0-this.id.offsetWidth;
+			this.rightBoundary=playArea.offsetWidth+this.id.offsetWidth;
+			}
+			this.init();
+			this.run(false);
+		}
+		Cloud.prototype=new E();
+		Cloud.prototype.constructor=Cloud;
+		//云平台
+		function CloudPlatform(){
+			this.item=Cloud;
+			this.launchSpeedT=40000;
+		}
+		CloudPlatform.prototype=new P();
+		CloudPlatform.prototype.constructor=Cloud;
+		var cloudPlatform=new CloudPlatform();
+		cloudPlatform.launch(this.item);
+		//积分系统;
+		function Score(){
+			this.cloumn=document.getElementById("scoreCloumn");
+			this.redCloumn=document.getElementById("score");
+			this.score=0;
+			this.player;
+			this.getScore=function(player){
+				this.player=player;
+				this.score+=5;
+				console.log(this.score);
+				this.update();
+			}
+			this.update=function(){
+				if(this.score<100){
+				this.redCloumn.style.height=this.score*2+"px";
+			}else{
+				this.score=0;
+				fighter.weaponLevel=1;
+			}
+			}
+		}
+		var position=0;
+		window.setInterval(function(){
+			playArea.style.backgroundPosition="0px "+position+"px";
+			position+=1;
+		},30)
+			// playArea.style.backgroundPositionX="100px";
+		fighter.score=new Score();
+		
+	</script>
+</html>

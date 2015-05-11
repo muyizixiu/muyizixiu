@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+	<meta lang="zh-cn" charset="utf-8" content="text/html"/>
+	<title>打飞机</title>
+	<style type="text/css">
+			#playArea{
+				height:800px;
+				width:800px;
+				margin:0 auto;
+				overflow: hidden;
+				background:url("./sky.png") top center;
+				background-position:10 10;
+				position:relative;
+			}
+			body{
+				background: #aaa;
+			}
+			#fighter{
+				width:100px;
+				height:60px;
+				position:absolute;
+				bottom:0px;
+			}
+			.bullet{
+				width:10px;
+				height:20px;
+				background: url("./bullet.png") no-repeat #555;
+				position:absolute;
+			}
+			.enemy{
+				display:block;
+				margin:0px;
+				padding:0px;
+				width:60px;
+				height:40px;
+				background: url("./enemy.png") no-repeat;
+				position:absolute;
+			}
+			.cloud{
+				display:block;
+				position:absolute;
+				z-index: 10;
+			}
+			#scoreCloumn{
+				width:30px;
+				height:200px;
+				background:blue;
+				position: absolute;
+				top:500px;
+				left:0px;
+			}
+			#score{
+				width:100%;
+				height:10px;
+				background:red;
+				position:absolute;
+				bottom:0px;
+			}
+		</style>
+</head>
+<body>
+	<div style="width:1000px;margin:0 auto;position:relative;">
+		<div id="playArea">
+			<img src="./fighter.png" alt="fighter" id="fighter">
+		</div>
+		<div id="scoreCloumn">
+			<div id="score"></div>
+		</div>
+		</div>
+		<audio loop="loop" >
+			<source src="./fire.mp3" type="audio/mp3"/>
+		</audio>
+		<audio >
+			<source src="./hit.mp3" type="audio/mp3"/>
+		</audio>
+		<script type="text/javascript" src="./js.class/Audio.js"></script>
+		<script type="text/javascript" src="./js.class/KeyBoard.js"></script>
+</body>
+</html>
