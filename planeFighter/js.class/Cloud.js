@@ -1,0 +1,34 @@
+function Cloud(address,className){
+	this.src=address;
+	if(!address){
+		this.src="./cloud.png";
+	}
+	this.className=className;
+	if(!className){
+		this.className="cloud";
+	}
+	this.speedL=4;
+	this.speedT=1;
+	this.id=null;
+	this.position=null;
+	this.speedT=300;
+	this.init=function(){
+		this.id=document.createElement("img");
+		this.id.src=this.src;
+		this.id.className=this.className;
+		playArea.appendChild(this.id);
+		this.position=Math.random()*(playArea.offsetHeight-this.id.offsetHeight);
+		this.id.style.top=this.position+"px";
+		this.id.style.left=0-this.id.offsetWidth+"px";
+		this.rightBoundary=this.boundary.offsetWidth+this.id.offsetWidth;
+		this.leftBoundary=0-this.id.offsetWidth;
+	}
+	this.bound=function(){
+		console.log("transfer");
+		this.destroy();
+	}
+	this.init();
+	this.run(false);
+}
+Cloud.prototype=new Move();
+Cloud.prototype.constructor=Cloud;

@@ -28,17 +28,15 @@ function Move(){
 	}
 	this.isHit=function(){
 	};
-	this.isBoundaryH=function(id,left,right){
+	this.leftBoundary=0;
+	this.rightBoundary=this.boundary.offsetWidth;
+	this.isBoundaryH=function(id){
 		if(!id){
 			id=this.id;
 		}
 		var L=id.offsetLeft;
-		if(!left){
-			left=0;
-		}
-		if(!right){
-			right=this.boundary.offsetWidth-id.offsetWidth;
-		}
+		var left=this.leftBoundary;
+		var right=this.rightBoundary-id.offsetWidth;
 		if(L<left){
 			this.bound(3,id);
 		}
@@ -47,7 +45,7 @@ function Move(){
 		}
 	}
 	this.bound=function(flag){
-		alert("error");
+		console.log("error");
 	}
 	this.speedH=5;
 	this.verticalTimer=new Array(2);
@@ -73,17 +71,15 @@ function Move(){
 		this.isHit(id);
 		this.isBoundaryV(id);
 	}
+	this.topBoundary=0;
+	this.bottomBoundary=this.boundary.offsetHeight;
 	this.isBoundaryV=function(id,top,bottom){
 		if(!id){
 			id=this.id;
 		}
 		var H=id.offsetTop;
-		if(!top){
-			top=0;
-		}
-		if(!bottom){
-			bottom=this.boundary.offsetHeight-id.offsetHeight;
-		}
+		var	top=this.topBoundary;
+		var	bottom=this.bottomBoundary-id.offsetHeight;
 		if(H<top){
 			this.bound(1,id);
 		}
@@ -105,5 +101,8 @@ function Move(){
 	this.hold=function(U_or_D){
 		this.stop(U_or_D,true);	
 	}
-	
+	this.destroy=function(id){
+		var _id=id?id:this.id;
+		playArea.removeChild(_id);
+	}
 }

@@ -16,6 +16,12 @@ function Fighter(id){
 			break;
 		}
 	}
+	this.fire=function(){
+		weapon.launch();
+	}
+	this.holdFire=function(){
+		weapon.stop();
+	}
 }
 Fighter.prototype=new Move();
 Fighter.prototype.constructor=Fighter;
